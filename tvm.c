@@ -27,15 +27,15 @@ void main (void) {
 
 		tvm_ectx_init (&tvm, &context);
 		context.mem_pool = mem_pool;
-
-		if (init_context_from_tbc (&context, tbc, tbc_length) != 0) {
-			//terminate ("program loading failed", NULL);
-		}
-
 		context.get_time = nxt_get_time;
 		context.modify_sync_flags = nxt_modify_sync_flags;
 		//context.sffi_table = sffi_table;
 		//context.sffi_table_length = sffi_table_length;
+
+		if (load_context_with_tbc (&context, tbc, tbc_length) != 0) {
+			/* FIXME: display program load failed */
+			continue;
+		}
 
 		while (running) {
 			int ret = tvm_run (&context);

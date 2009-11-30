@@ -18,11 +18,8 @@ static tbc_t *decode_tbc (BYTE *data, unsigned int length)
 	if (tenc_decode_element (data, &length, &element))
 		return NULL;
 
-	#if TVM_WORD_LENGTH == 2
-	if (tvm_memcmp (element.id, "tenc", 4) != 0)
-	#else
-	if (tvm_memcmp (element.id, "TEnc", 4) != 0)
-	#endif
+	if ((element.id[0] != 'T') || (element.id[1] != 'E') 
+		|| (element.id[2] != 'n') || (element.id[3] != 'c'))
 	{
 		return NULL;
 	}
@@ -39,6 +36,49 @@ static tbc_t *decode_tbc (BYTE *data, unsigned int length)
 	return tbc;
 }
 
-int init_context_from_tbc (ECTX ectx, BYTE *data, UWORD length) {
-	return -1;
+int load_context_with_tbc (ECTX ectx, BYTE *data, UWORD length)
+{
+	WORDPTR mem, vs, ws;
+	WORD mem_len;
+	tbc_t *tbc = decode_tbc (data, length);
+	int i;
+
+	if (tbc == NULL) {
+		return -1;
+	}
+
+	mem_len = tvm_ectx_memory_size (
+		ectx,
+		"", 0, 
+		tbc->ws, tbc->vs
+	);
+
+	mem = (WORDPTR) tvm_malloc (ectx, sizeof (WORD) * mem_len);
+	if (mem == NULL) {
+		return -1;
+	}
+	for (i = 0 ; i < mem_len; ++i) {
+		write_word (wordptr_plus (mem, i), MIN_INT);
+	}
+
+	tvm_ectx_layout (
+		ectx, mem,
+		"", 0, 
+		tbc->ws, tbc->vs, 
+		&ws, &vs
+	);
+
+	if (tvm_ectx_install_tlp (
+		ectx,
+		tbc->bytecode, ws, vs,
+		"", 0, NULL
+	)) {
+		tvm_free (ectx, mem);
+		return -1;
+	}
+
+	ectx->priv.memory		= mem;
+	ectx->priv.memory_length	= mem_len;
+
+	return 0;
 }
