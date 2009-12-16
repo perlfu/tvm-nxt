@@ -8,6 +8,14 @@
 #include "tvm-nxt.h"
 #include <tvm_tbc.h>
 
+UWORD valid_tbc_header (BYTE *data)
+{
+	if (data[0] == 'T' && data[1] == 'E' && data[2] == 'n' && data[3] == 'c') {
+		return tenc_decode_int (&(data[4]));
+	}
+	return 0;
+}
+
 static tbc_t *decode_tbc (BYTE *data, unsigned int length)
 {
 	tenc_element_t element;

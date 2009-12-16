@@ -1,4 +1,6 @@
 #include "tvm-nxt.h"
+#include <base/display.h>
+#include <base/drivers/_usb.h>
 
 static void *mem_pool = NX_USERSPACE_START; 
 static tvm_t tvm;
@@ -15,15 +17,69 @@ static void nxt_modify_sync_flags (ECTX ectx, WORD set, WORD clear) {
 }
 
 void main (void) {
+	UWORD tbc_length = 0;
+	BYTE *tbc = NULL;
+	
 	tvm_init (&tvm);
 
 	for (;;) {
-		UWORD tbc_length = 0;
-		BYTE *tbc = NULL;
-		char buffer[8];
-		int running = 1;
+		U8 buffer[NX_USB_PACKET_SIZE];
+		WORD usb 	= 0;
+		U32 pos		= 0;
+		U32 i;
+		int running 	= 1;
 
-		tlsf_init_memory_pool (NX_USERSPACE_SIZE, (void *) mem_pool);
+		nx_display_clear ();
+		nx_display_string ("I am the Transterpreter,");
+		nx_display_end_line ();
+		nx_display_string ("        give me all your bytecodes.");
+		nx_display_end_line ();
+		
+		nx_usb_read (buffer, NX_USB_PACKET_SIZE);
+		while (usb == 0) {
+			if ((pos = nx_usb_data_read ()) >= 8) {
+				if ((usb = valid_tbc_header (buffer))) {
+					tbc = (BYTE *) mem_pool;
+					tbc_length = pos + usb;
+					for (i = 0; i < pos; ++i) {
+						tbc[i] = buffer[i];
+					}
+				}
+			} else {
+				nx_systick_wait_ms (200);
+			}
+		}
+
+		nx_display_string ("Got TEncode header.");
+		nx_display_end_line ();
+		nx_display_uint (usb);
+		nx_display_string (" bytes remaining");
+		nx_display_end_line ();
+
+		while (usb > 0) {
+			U32 tmp;
+
+			if (usb >= NX_USB_PACKET_SIZE) {
+				nx_usb_read (buffer, NX_USB_PACKET_SIZE);
+			} else {
+				nx_usb_read (buffer, usb);
+			}
+
+			while (!(tmp = nx_usb_data_read ())) {
+				nx_display_uint (usb);
+				nx_display_string (" bytes remaining");
+				nx_display_end_line ();
+				nx_systick_wait_ms (200);
+			}
+
+			for (i = 0; i < tmp; ++i) {
+				tbc[pos++] = buffer[i];
+				usb--;
+			}
+		}
+
+		tlsf_init_memory_pool (NX_USERSPACE_SIZE, 
+				(void *)(((U8 *) mem_pool) + tbc_length));
 
 		tvm_ectx_init (&tvm, &context);
 		context.mem_pool = mem_pool;
