@@ -6,7 +6,6 @@
  */
 
 #include "tvm-nxt.h"
-#include <tvm_tbc.h>
 
 UWORD valid_tbc_header (BYTE *data)
 {
@@ -44,15 +43,18 @@ static tbc_t *decode_tbc (BYTE *data, unsigned int length)
 	return tbc;
 }
 
-int load_context_with_tbc (ECTX ectx, BYTE *data, UWORD length)
+tbc_t *load_context_with_tbc (ECTX ectx, tbc_t *tbc, BYTE *data, UWORD length)
 {
 	WORDPTR mem, vs, ws;
 	WORD mem_len;
-	tbc_t *tbc = decode_tbc (data, length);
 	int i;
 
+	if (tbc == NULL && data != NULL) {
+		tbc = decode_tbc (data, length);
+	}
+
 	if (tbc == NULL) {
-		return -1;
+		return NULL;
 	}
 
 	mem_len = tvm_ectx_memory_size (
@@ -63,7 +65,7 @@ int load_context_with_tbc (ECTX ectx, BYTE *data, UWORD length)
 
 	mem = (WORDPTR) tvm_malloc (ectx, sizeof (WORD) * mem_len);
 	if (mem == NULL) {
-		return -1;
+		return NULL;
 	}
 	for (i = 0 ; i < mem_len; ++i) {
 		write_word (wordptr_plus (mem, i), MIN_INT);
@@ -82,11 +84,11 @@ int load_context_with_tbc (ECTX ectx, BYTE *data, UWORD length)
 		"", 0, NULL
 	)) {
 		tvm_free (ectx, mem);
-		return -1;
+		return NULL;
 	}
 
 	ectx->priv.memory		= mem;
 	ectx->priv.memory_length	= mem_len;
 
-	return 0;
+	return tbc;
 }
