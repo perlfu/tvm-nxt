@@ -4,6 +4,7 @@ from __future__ import division
 import sys
 import os.path
 import struct
+import time
 
 nxt_path = os.path.join(
     os.path.split(os.path.abspath(__file__))[0], '..', 'pynxt')
@@ -54,7 +55,18 @@ def upload(tbc):
     if not brick:
         raise BrickNotFound('USB timed out')
     brick.open(NXOS_INTERFACE)
-    brick.write(to_brick)
+    pos = 0
+    while pos < len(tbc.firmware):
+    	if (len(tbc.firmware) - pos) > 16:
+    		siz = 16
+	else:
+		siz = len(tbc.firmware) - pos
+	brick.write(tbc.firmware[pos:(pos+siz)])
+	pos = pos + siz
+	if pos <= 16:
+		time.sleep(1.5)
+	else:
+		time.sleep(0.2)
     brick.close()
 
 
