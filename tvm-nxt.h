@@ -30,7 +30,7 @@ enum {
 	(SFLAG_INTR | \
 	TVM_INTR_VIRTUAL)
 
-/*{{{  ffi.c */
+/*{{{  sffi.c */
 extern SFFI_FUNCTION sffi_table[];
 extern const int sffi_table_length;
 /*}}}*/

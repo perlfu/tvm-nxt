@@ -1,0 +1,28 @@
+
+#PRAGMA EXTERNAL "PROC C.tvmspecial.0.nx.display.clear () = 0"
+#PRAGMA EXTERNAL "PROC C.tvmspecial.1.nx.display.set.pos (VAL INT x, y) = 0"
+#PRAGMA EXTERNAL "PROC C.tvmspecial.2.nx.display.string (VAL []BYTE str) = 0"
+
+INLINE PROC nx.display.clear ()
+  C.tvmspecial.0.nx.display.clear ()
+:
+
+INLINE PROC nx.display.set.pos (VAL INT x, y)
+  C.tvmspecial.1.nx.display.set.pos (x, y)
+:
+
+INLINE PROC nx.display.string (VAL []BYTE str)
+  C.tvmspecial.2.nx.display.string (str)
+:
+
+PROC main ()
+  TIMER time:
+  INT now:
+  SEQ
+    nx.display.clear ()
+    WHILE TRUE
+      SEQ
+        nx.display.string ("Hello World!")
+        time ? now
+        time ? AFTER (now PLUS 1000)
+:

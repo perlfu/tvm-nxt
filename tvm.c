@@ -119,8 +119,8 @@ void main (void) {
 		context.mem_pool = mem_pool + tbc_length;
 		context.get_time = nxt_get_time;
 		context.modify_sync_flags = nxt_modify_sync_flags;
-		//context.sffi_table = sffi_table;
-		//context.sffi_table_length = sffi_table_length;
+		context.sffi_table = sffi_table;
+		context.sffi_table_length = sffi_table_length;
 		
 		tlsf_init_memory_pool (NX_USERSPACE_SIZE - tbc_length, 
 				(void *) context.mem_pool);
