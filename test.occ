@@ -40,14 +40,25 @@ INLINE PROC nx.motors.get.tach.count (VAL INT motor, RESULT INT count)
   C.tvmspecial.7.nx.motors.get.tach.count (motor, count)
 :
 
-PROC main ()
+PROC delay.ms (VAL INT ms)
   TIMER time:
   INT now:
   SEQ
-    nx.display.clear ()
-    WHILE TRUE
-      SEQ
-        nx.display.string ("Hello World!*n")
-        time ? now
-        time ? AFTER (now PLUS 1000)
+    time ? now
+    time ? AFTER (now PLUS ms)
+:
+
+PROC main ()
+  WHILE TRUE
+    SEQ
+      nx.display.string ("Forward!*n")
+      nx.motors.rotate (0, 100)
+      delay.ms (1000)
+      nx.motors.stop (0, FALSE)
+      delay.ms (1000)
+      nx.display.string ("Backward!*n")
+      nx.motors.rotate (0, -100)
+      delay.ms (1000)
+      nx.motors.stop (0, FALSE)
+      delay.ms (1000)
 :
