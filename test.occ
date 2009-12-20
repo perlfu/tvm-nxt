@@ -22,7 +22,7 @@ PROC main ()
     nx.display.clear ()
     WHILE TRUE
       SEQ
-        nx.display.string ("Hello World!")
+        nx.display.string ("Hello World!*n")
         time ? now
         time ? AFTER (now PLUS 1000)
 :

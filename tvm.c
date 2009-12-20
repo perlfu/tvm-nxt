@@ -180,10 +180,9 @@ void main (void) {
 					break;
 				}
 			}
-			
-			nx_display_end_line ();
-			nx_systick_wait_ms (3000);
 		}
+		
+		nx_systick_wait_ms (3000);
 	}
 
 	/* NOTREACHED */
