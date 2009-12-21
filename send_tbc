@@ -66,7 +66,7 @@ def upload(tbc):
 	if pos <= 16:
 		time.sleep(1.5)
 	else:
-		time.sleep(0.2)
+		time.sleep(0.05)
     brick.close()
 
 

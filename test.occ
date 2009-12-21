@@ -66,7 +66,6 @@ VAL INT I2C.ERR.NOT.READY       IS 2:
 VAL INT I2C.ERR.TXN.FULL        IS 3:
 VAL INT I2C.ERR.DATA            IS 4:
 
-
 PROC delay.ms (VAL INT ms)
   TIMER time:
   INT now:
@@ -75,17 +74,53 @@ PROC delay.ms (VAL INT ms)
     time ? AFTER (now PLUS ms)
 :
 
+PROC display.int (VAL INT x)
+  SKIP 
+:
+
+VAL BYTE RADAR.VERSION                 IS #00:
+VAL BYTE RADAR.PRODUCT.ID              IS #08:
+VAL BYTE RADAR.SENSOR.TYPE             IS #10:
+VAL BYTE RADAR.FACTORY.ZERO            IS #11:
+VAL BYTE RADAR.FACTORY.SCALE.FACTOR    IS #12:
+VAL BYTE RADAR.FACTORY.SCALE.DIVISOR   IS #13:
+VAL BYTE RADAR.MEASUREMENT.UNITS       IS #14:
+VAL BYTE RADAR.INTERVAL                IS #40:
+VAL BYTE RADAR.OP.MODE                 IS #41:
+VAL BYTE RADAR.R0                      IS #42:
+VAL BYTE RADAR.R1                      IS #43:
+VAL BYTE RADAR.R2                      IS #44:
+VAL BYTE RADAR.R3                      IS #45:
+VAL BYTE RADAR.R4                      IS #46:
+VAL BYTE RADAR.R5                      IS #47:
+VAL BYTE RADAR.R6                      IS #48:
+VAL BYTE RADAR.R7                      IS #49:
+VAL BYTE RADAR.CURRENT.ZERO            IS #50:
+VAL BYTE RADAR.CURRENT.SCALE.FACTOR    IS #51:
+VAL BYTE RADAR.CURRENT.SCALE.DIVISOR   IS #52:
+
+VAL BYTE RADAR.MODE.OFF               IS #00:
+VAL BYTE RADAR.MODE.SINGLE.SHOT       IS #01:
+VAL BYTE RADAR.MODE.CONTINUOUS        IS #02:
+VAL BYTE RADAR.MODE.RESET             IS #04:
+
 PROC main ()
-  WHILE TRUE
-    SEQ
-      nx.display.string ("Forward!*n")
-      nx.motors.rotate (0, 100)
-      delay.ms (1000)
-      nx.motors.stop (0, FALSE)
-      delay.ms (1000)
-      nx.display.string ("Backward!*n")
-      nx.motors.rotate (0, -100)
-      delay.ms (1000)
-      nx.motors.stop (0, FALSE)
-      delay.ms (1000)
+  INITIAL INT result IS I2C.ERR.NOT.READY:
+  [8]BYTE buffer:
+  SEQ
+    nx.display.clear ()
+    nx.i2c.memory.init (#0, #01, TRUE)
+    WHILE result <> I2C.ERR.OK
+      SEQ
+        buffer[0] := RADAR.MODE.CONTINUOUS
+        nx.i2c.memory.write (#0, RADAR.OP.MODE, [ buffer FOR 1 ], result)
+    WHILE TRUE
+      SEQ
+        delay.ms (1000)
+        nx.i2c.memory.read (#0, RADAR.R0, [ buffer FOR 1 ], result)
+        IF
+          result = I2C.ERR.OK
+            nx.display.string ("OK*n")
+          TRUE
+            nx.display.string ("ERROR*n")
 :
