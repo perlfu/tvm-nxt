@@ -7,6 +7,7 @@
 
 #include "tvm-nxt.h"
 #include <base/display.h>
+#include <base/drivers/i2c_memory.h>
 #include <base/drivers/motors.h>
 
 /* PROC nx.display.clear () */
@@ -77,6 +78,37 @@ int _nx_motors_get_tach_count (ECTX ectx, WORD args[]) {
 	return SFFI_OK;
 }
 
+/* PROC nx.i2c.memory.init (VAL INT sensor, VAL BYTE address, VAL BOOL lego.compat) */
+int _nx_i2c_memory_init (ECTX ectx, WORD args[]) {
+	nx_i2c_memory_init ((U32) args[0], (U8) args[1], (bool) args[2]);
+	return SFFI_OK;
+}
+/* PROC nx.i2c.memory.close (VAL INT sensor) */
+int _nx_i2c_memory_close (ECTX ectx, WORD args[]) {
+	nx_i2c_memory_close ((U32) args[0]);
+	return SFFI_OK;
+}
+/* PROC nx.i2c.memory.read (VAL INT sensor, VAL BYTE address, []BYTE buffer, RESULT INT result) */
+int _nx_i2c_memory_read (ECTX ectx, WORD args[]) {
+	S32 result = nx_i2c_memory_read (
+		(U32) args[0], (U8) args[1],
+		(U8 *) wordptr_real_address ((WORDPTR) args[2]),
+		(U32) args[3]
+	);
+	write_word ((WORDPTR) args[4], (WORD) result);
+	return SFFI_OK;
+}
+/* PROC nx.i2c.memory.write (VAL INT sensor, VAL BYTE address, VAL []BYTE buffer, RESULT INT result) */
+int _nx_i2c_memory_write (ECTX ectx, WORD args[]) {
+	S32 result = nx_i2c_memory_write (
+		(U32) args[0], (U8) args[1],
+		(U8 *) wordptr_real_address ((WORDPTR) args[2]),
+		(U32) args[3]
+	);
+	write_word ((WORDPTR) args[4], (WORD) result);
+	return SFFI_OK;
+}
+
 SFFI_FUNCTION sffi_table[] = {
 	_nx_display_clear,
 	_nx_display_cursor_set_pos,
@@ -85,6 +117,10 @@ SFFI_FUNCTION sffi_table[] = {
 	_nx_motors_rotate_angle,
 	_nx_motors_rotate_time,
 	_nx_motors_stop,
-	_nx_motors_get_tach_count
+	_nx_motors_get_tach_count,
+	_nx_i2c_memory_init,
+	_nx_i2c_memory_close,
+	_nx_i2c_memory_read,
+	_nx_i2c_memory_write
 };
 const int sffi_table_length = sizeof(sffi_table) / sizeof(SFFI_FUNCTION);
