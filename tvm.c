@@ -2,6 +2,8 @@
 #include <base/display.h>
 #include <base/drivers/_avr.h>
 #include <base/drivers/_usb.h>
+#include <base/drivers/motors.h>
+#include <base/drivers/sensors.h>
 
 static void *mem_pool = NX_USERSPACE_START; 
 static tvm_t tvm;
@@ -182,6 +184,10 @@ void main (void) {
 			}
 		}
 		
+		for (i = 0; i < 3; ++i)
+			nx_motors_stop (i, FALSE);
+		for (i = 0; i < 4; ++i)
+			nx__sensors_disable (i);
 		nx_systick_wait_ms (3000);
 	}
 
