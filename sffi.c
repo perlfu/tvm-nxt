@@ -51,7 +51,7 @@ int _nx_motors_rotate (ECTX ectx, WORD args[]) {
 int _nx_motors_rotate_angle (ECTX ectx, WORD args[]) {
 	nx_motors_rotate_angle (
 		(U8) args[0], (S8) args[1], 
-		(U32) args[2], (bool) args[3]
+		(U32) args[2], args[3] ? TRUE : FALSE
 	);
 	return SFFI_OK;
 }
@@ -60,14 +60,14 @@ int _nx_motors_rotate_angle (ECTX ectx, WORD args[]) {
 int _nx_motors_rotate_time (ECTX ectx, WORD args[]) {
 	nx_motors_rotate_time (
 		(U8) args[0], (S8) args[1], 
-		(U32) args[2], (bool) args[3]
+		(U32) args[2], args[3] ? TRUE : FALSE
 	);
 	return SFFI_OK;
 }
 
 /* PROC nx.motors.stop (VAL INT motor, VAL BOOL brake) */
 int _nx_motors_stop (ECTX ectx, WORD args[]) {
-	nx_motors_stop ((U8) args[0], (bool) args[1]);
+	nx_motors_stop ((U8) args[0], args[1] ? TRUE : FALSE);
 	return SFFI_OK;
 }
 
@@ -80,7 +80,7 @@ int _nx_motors_get_tach_count (ECTX ectx, WORD args[]) {
 
 /* PROC nx.i2c.memory.init (VAL INT sensor, VAL BYTE address, VAL BOOL lego.compat) */
 int _nx_i2c_memory_init (ECTX ectx, WORD args[]) {
-	nx_i2c_memory_init ((U32) args[0], (U8) args[1], (bool) args[2]);
+	nx_i2c_memory_init ((U32) args[0], (U8) args[1], args[2] ? TRUE : FALSE);
 	return SFFI_OK;
 }
 /* PROC nx.i2c.memory.close (VAL INT sensor) */
