@@ -1,6 +1,8 @@
 
 #INCLUDE "nxt.inc"
 
+VAL BYTE RADAR.I2C.ADDRESS             IS #01:
+
 VAL BYTE RADAR.VERSION                 IS #00:
 VAL BYTE RADAR.PRODUCT.ID              IS #08:
 VAL BYTE RADAR.SENSOR.TYPE             IS #10:
@@ -32,7 +34,7 @@ PROC main ()
   INT interval, result:
   SEQ
     nx.display.clear ()
-    nx.i2c.memory.init (#0, #01, TRUE)
+    nx.i2c.memory.init (#0, RADAR.I2C.ADDRESS, TRUE)
   
     INITIAL INT i IS 0:
     WHILE TRUE
